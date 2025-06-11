@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hệ Thống Tool💎</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            color: #00ff00;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: black;
+            min-height: 100vh;
+    padding: 10px;
+        }
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 15px #00ff00;
+            width: 90%;max-width: 400px;
+
+        }
+        input, button {
+            width: 100%; padding: 12px;
+            margin-top: 10px; border: none;
+            border-radius: 5px; outline: none;
+            font-size: 16px; text-align: center;
+            background: black; color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        button { cursor: pointer; transition: 0.3s; }
+        button:hover { background: #003300; }
+        
+        /* Full màn hình iframe */
+        #fullscreenIframe {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            border: none; display: none;
+            z-index: 1;
+        }
+
+        /* Popup bên trong iframe */
+        #floatingPopup {
+            position: absolute;
+            width: 300px; height: 150px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            display: none;
+            cursor: move;
+            z-index: 2;
+        }
+        /* Nút đóng */
+#closePopup {
+    position: absolute;
+    top: 5px;  /* Cách mép trên 5px */
+    right: 5px; /* Cách mép phải 5px */
+    width: 30px;
+    height: 30px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    border: 2px solid white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+#closePopup:hover {
+    background: white;
+    color: red;
+    transform: rotate(180deg);
+}
+
+        /* Nút mở popup */
+        #openPopupBtn {
+            width: 150px;
+            position: fixed;
+            top: 10px; right: 10px;
+            padding: 10px 15px;
+            background: #00ff00;
+            color: black;
+            border: none;
+            cursor: pointer;
+            z-index: 3;
+            display: none;
+        }
+        #openPopupBtn, #exitIframeBtn {
+    position: fixed;
+    top: 10px;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    z-index: 3;
+    display: none;
+}
+
+#openPopupBtn {
+    right: 10px;
+    background: #00ff00;
+    color: black;
+}
+
+#exitIframeBtn {
+    right: 170px;
+    background: red;
+    color: white;
+    font-weight: bold;
+    width: 120px;
+}
+.logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 120px;
+            height: auto;
+            z-index: 10;
+        }
+        #fullscreenIframe {
+    width: 100%;
+    height: 100vh;
+    max-width: 100vw;
+}
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+        padding: 15px;
+    }
+    input, button {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+#chatBubble {
+        background: transparent; /* Nền trong suốt */
+        color: black;
+        padding: 15px;
+        border-radius: 15px;
+        border: 2px solid rgba(0, 255, 0, 0.8); /* Viền sáng */
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.8); /* Hiệu ứng phát sáng */
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        min-width: 150px;
+        min-height: 80px;
+        position: relative;
+        margin-left: 5px; /* Tạo khoảng cách cho mũi nhọn */
+    }
+    .chat-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    #waitingText {
+        font-size: 16px;
+        font-weight: bold;
+        color: rgba(0, 255, 0, 0.8);
+        animation: blink 1.5s infinite alternate;
+    }
+
+    .fade-in {
+        display: block;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .fade-out {
+        animation: fadeOut 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    #chatBubble img {
+        width: 70px;
+        height: auto;
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+    }
+
+    .chat-arrow {
+        position: absolute;
+        left: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-right: 10px solid rgba(0, 255, 0, 0.8);
+    }
+    </style>
+</head>
+<body>
+    <video autoplay muted loop id="background-video">
+        <source src="https://media.istockphoto.com/id/1206378843/vi/video/k%E1%BA%BFt-n%E1%BB%91i-d%E1%BB%AF-li%E1%BB%87u-m%E1%BA%A1ng-c%C3%B4ng-ngh%E1%BB%87-m%E1%BA%A1ng-d%E1%BB%AF-li%E1%BB%87u-k%E1%BB%B9-thu%E1%BA%ADt-s%E1%BB%91-v%C3%A0-kh%C3%A1i-ni%E1%BB%87m-an-ninh-m%E1%BA%A1ng-nguy%C3%AAn-t%E1%BB%91.mp4?s=mp4-640x640-is&k=20&c=a9Z_MXYQKWeVLI0cCNbAVJJE-8R5EImZHDV2UsPK0O0=" type="video/mp4">
+    </video>
+    
+       <div class="container">
+    <video autoplay muted loop id="background-video">
+        <source src="https://media.istockphoto.com/id/1206378843/vi/video/k%E1%BA%BFt-n%E1%BB%91i-d%E1%BB%AF-li%E1%BB%87u-m%E1%BA%A1ng-c%C3%B4ng-ngh%E1%BB%87-m%E1%BA%A1ng-d%E1%BB%AF-li%E1%BB%87u-k%E1%BB%B9-thu%E1%BA%ADt-s%E1%BB%91-v%C3%A0-kh%C3%A1i-ni%E1%BB%87m-an-ninh-m%E1%BA%A1ng-nguy%C3%AAn-t%E1%BB%91.mp4?s=mp4-640x640-is&k=20&c=a9Z_MXYQKWeVLI0cCNbAVJJE-8R5EImZHDV2UsPK0O0=" type="video/mp4">
+    </video>
+        <h2>Dán Link Game Tool Hỗ Trợ⚙️</h2>
+        <input type='text' id='urlInput' placeholder='Dán Link Game Hệ Thống Hỗ Trợ Vào Đây'>
+        <button onclick='loadIframe()'>Xâm Nhập🗡</button>
+        <button style="background: red;" onclick='logout()'>📲 Đăng Xuất</button>
+        <button id="importantNoticeBtn" style="background: yellow; color: black; font-weight: bold; margin-top: 10px;">⚠️ Thông Báo - Lưu Ý Dùng Tool</button>
+    </div>
+    <iframe id="fullscreenIframe"></iframe>
+    <button id="openPopupBtn" onclick="togglePopup()">📌 Kích Hoạt</button>
+    <button id="exitIframeBtn" onclick="exitIframe()">🏠 Thoát</button>
+    <div id="floatingPopup">
+    <button id="closePopup" onclick="togglePopup()">❌</button>
+    <h3 style="text-align: center;">Tool Nờ Mờ Cờ Tài Xỉu</h3>
+    <div>
+
+    <div style="position: relative; display: flex; align-items: center;">
+    <img src="./robot.png" alt="Logo" style="width: 100px; height: auto; display: block; margin-top: 5px; margin-left: 0;">
+
+    <div id="chatBubble">
+        <div class="chat-content">
+            <p id="waitingText">Chờ phân tích phiên mới...</p>
+            <img id="logo1" src="./tri xulng.png" alt="Logo 1" class="hidden">
+            <img style="width: 80px;" id="logo2" src="./XIU.png" alt="Logo 2" class="hidden">
+        </div>
+        <div class="chat-arrow"></div>
+    </div>
+</div>
+    <script>
+    document.getElementById("importantNoticeBtn").addEventListener("click", function() {
+        Swal.fire({
+            title: '📢 Thông Báo Quan Trọng!',
+            text: 'Hệ Thóng Chỉ Hỗ Trợ Các Cổng Game Sum.Club , Luckkywin , 68GAMEBAI'+
+                  'Hệ Thống Phân Tích Có Xác Xuất Nên Hạn Chế Sử Dụng Liên Tục !!'+
+                  'Tool Có Thể Bị Lỗi Đọc Chậm Nên Anh Em Chờ Đến Phiên 15s Rồi Bật Tool Nhé !!'+
+                  'Các Trường Hợp Mang Tài Khoản Đi Bán Sẽ Bị Khóa Tài Khoản ❌',
+            icon: 'warning',
+            confirmButtonText: 'Đã Hiểu!'
+        });
+    });
+</script>
+        <script>
+        function loadIframe() {
+    var url = document.getElementById("urlInput").value.trim();
+    
+    
+    var urlPattern = /^(https?:\/\/)?([a-zA-Z0-9.-]+)\.([a-z]{2,6})(\/\S*)?$/;
+
+    if (urlPattern.test(url)) {
+        if (!url.startsWith("http")) {
+            url = "https://" + url; 
+        }
+        document.getElementById("fullscreenIframe").src = url;
+        document.getElementById("fullscreenIframe").style.display = "block";
+        document.getElementById("openPopupBtn").style.display = "block";
+        document.getElementById("exitIframeBtn").style.display = "block"; 
+    } else {
+        Swal.fire({ 
+            title: '⚠️ Lỗi!', 
+            text: 'Vui lòng nhập URL hợp lệ!', 
+            icon: 'error', 
+            confirmButtonText: 'OK' 
+        });
+    }
+}
+function exitIframe() {
+    document.getElementById("fullscreenIframe").style.display = "none";
+    document.getElementById("openPopupBtn").style.display = "none";
+    document.getElementById("exitIframeBtn").style.display = "none";
+}
+(function() {
+    function detectDevTools() {
+        const start = performance.now();
+        debugger; 
+        const end = performance.now();
+        if (end - start > 100) {
+            alert("Sửa DEV Cái ĐB");
+            window.location.href = "https://f5-zpcloud.zdn.vn/2634155525422451373/784eeb0a67a4a3fafab5.jpg";
+        }
+    }
+    setInterval(detectDevTools, 1000);
+})();
+
+document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey && event.key === "u") {
+        event.preventDefault(); 
+        window.location.href = "https://f5-zpcloud.zdn.vn/2634155525422451373/784eeb0a67a4a3fafab5.jpg"; 
+    }
+});
+document.addEventListener("keydown", function (event) {
+    if (event.key === "F12" || 
+        (event.ctrlKey && event.shiftKey && (event.key === "I" || event.key === "J")) || 
+        (event.ctrlKey && event.key === "U")) {
+        event.preventDefault();
+        window.location.href = "https://f5-zpcloud.zdn.vn/2634155525422451373/784eeb0a67a4a3fafab5.jpg";
+    }
+});
+
+document.addEventListener("contextmenu", function (event) {
+    event.preventDefault();
+    window.location.href = "https://f5-zpcloud.zdn.vn/2634155525422451373/784eeb0a67a4a3fafab5.jpg";
+});
+
+function logout() {
+    window.location.href = "?logout=1";
+}
+
+function togglePopup() {
+    var popup = document.getElementById("floatingPopup");
+    popup.style.display = (popup.style.display === "block") ? "none" : "block";
+}
+
+let popup = document.getElementById("floatingPopup");
+
+// Xử lý kéo popup trên thiết bị di động
+popup.addEventListener('touchstart', function (event) {
+    let touchStartX = event.touches[0].clientX;
+    let touchStartY = event.touches[0].clientY;
+    let popupRect = popup.getBoundingClientRect();
+    let shiftX = touchStartX - popupRect.left;
+    let shiftY = touchStartY - popupRect.top;
+
+    function moveAt(pageX, pageY) {
+        let newX = pageX - shiftX;
+        let newY = pageY - shiftY;
+        let maxX = window.innerWidth - popup.clientWidth;
+        let maxY = window.innerHeight - popup.clientHeight;
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+        popup.style.left = newX + "px";
+        popup.style.top = newY + "px";
+    }
+
+    function onTouchMove(event) {
+        moveAt(event.touches[0].pageX, event.touches[0].pageY);
+    }
+
+    function onTouchEnd() {
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+    }
+
+    document.addEventListener('touchmove', onTouchMove);
+    document.addEventListener('touchend', onTouchEnd);
+});
+
+// Xử lý kéo popup trên máy tính
+popup.onmousedown = function (event) {
+    let shiftX = event.clientX - popup.getBoundingClientRect().left;
+    let shiftY = event.clientY - popup.getBoundingClientRect().top;
+
+    function moveAt(pageX, pageY) {
+        let newX = pageX - shiftX;
+        let newY = pageY - shiftY;
+        let maxX = window.innerWidth - popup.clientWidth;
+        let maxY = window.innerHeight - popup.clientHeight;
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+        popup.style.left = newX + "px";
+        popup.style.top = newY + "px";
+    }
+
+    function onMouseMove(event) {
+        moveAt(event.pageX, event.pageY);
+    }
+
+    document.addEventListener("mousemove", onMouseMove);
+
+    document.onmouseup = function () {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.onmouseup = null;
+    };
+};
+
+popup.ondragstart = function () {
+    return false;
+};
+
+    popup.ondragstart = function () {
+        return false;
+    };
+    let lastLogo = null; 
+let repeatCount = 0; 
+function getNextLogo() {
+    let newLogo;
+
+    if (lastLogo === "logo1") {
+        newLogo = repeatCount >= 5 ? "logo2" : (Math.random() < 0.5 ? "logo1" : "logo2");
+    } else {
+        newLogo = repeatCount >= 5 ? "logo1" : (Math.random() < 0.5 ? "logo2" : "logo1");
+    }
+
+    if (newLogo === lastLogo) {
+        repeatCount++;
+    } else {
+        repeatCount = 1;
+    }
+
+    lastLogo = newLogo;
+    return newLogo;
+}
+function toggleLogo() {
+    let logo1 = document.getElementById("logo1");
+    let logo2 = document.getElementById("logo2");
+    let waitingText = document.getElementById("waitingText");
+    waitingText.style.display = "block";
+    logo1.classList.add("hidden");
+    logo2.classList.add("hidden");
+    setTimeout(() => {
+        let selectedLogoName = getNextLogo();
+        let selectedLogo = selectedLogoName === "logo1" ? logo1 : logo2;
+        waitingText.style.display = "none";
+        selectedLogo.classList.remove("hidden");
+        selectedLogo.classList.add("fade-in");
+        setTimeout(() => {
+            selectedLogo.classList.add("fade-out");
+            setTimeout(() => {
+                selectedLogo.classList.add("hidden");
+                selectedLogo.classList.remove("fade-in", "fade-out");
+                waitingText.style.display = "block";
+            }, 1000);
+        }, 14000);
+    }, 60000);
+}
+setInterval(toggleLogo, 60000);
+toggleLogo();
+    </script>
+</body>
+</html>
